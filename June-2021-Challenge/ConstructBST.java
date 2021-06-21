@@ -1,50 +1,56 @@
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
-
-
 /*
-Given an Iterator class interface with methods: next() and hasNext(), design and implement a PeekingIterator that support the peek() operation -- it essentially peek() at the element that will be returned by the next call to next().
+Given two integer arrays preorder and inorder where preorder is the preorder traversal of a binary tree and 
+inorder is the inorder traversal of the same tree, construct and return the binary tree.Example:
 
-Example:
+Examples:
 
-Assume that the iterator is initialized to the beginning of the list: [1,2,3].
+Input: preorder = [3,9,20,15,7], inorder = [9,3,15,20,7]
+Output: [3,9,20,null,null,15,7]
 
-Call next() gets you 1, the first element in the list.
-Now you call peek() and it returns 2, the next element. Calling next() after that still return 2. 
-You call next() the final time and it returns 3, the last element. 
-Calling hasNext() after that should return false.
+Input: preorder = [-1], inorder = [-1]
+Output: [-1]
 
 
 @author: Kruthi Meghana Anumandla
 */
 
-class PeekingIterator implements Iterator<Integer> {
-    
-    private Iterator<Integer> iter;
-    private Integer nextElement = null;
-    
-	public PeekingIterator(Iterator<Integer> iterator) {
-	    // initialize any member here.
-         iter = iterator;
-         nextElement = iter.hasNext()? iter.next() : null;	    
-	}
-    
-	public Integer peek() {
-        return nextElement;
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode() {}
+ *     TreeNode(int val) { this.val = val; }
+ *     TreeNode(int val, TreeNode left, TreeNode right) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
+ * }
+ */
+class Solution {
+    int preorderIndex;
+    Map<Integer, Integer> inorderHashmap;
+    public TreeNode buildTree(int[] preorder, int[] inorder) {
+        preorderIndex=0;
+        inorderHashmap = new HashMap<>();
+        for(int i=0; i<inorder.length;i++) {
+            inorderHashmap.put(inorder[i], i);
+        }
         
-	}
+        return treeConstruct(preorder, 0, preorder.length-1);
+    }
     
-	@Override
-	public Integer next() {
-        Integer buffer = nextElement;
-        nextElement = iter.hasNext()? iter.next() : null;
-	    return buffer;
-	}
-	
-	@Override
-	public boolean hasNext() {
-	    return nextElement == null? false: true;
-	}
+    public TreeNode treeConstruct(int[] preorder,int leftInd, int rightInd) {
+        if(leftInd > rightInd) return null;
+        int nextRootValue = preorder[preorderIndex++];
+        TreeNode nextRoot = new TreeNode(nextRootValue);
+        
+        nextRoot.left = treeConstruct(preorder, leftInd, inorderHashmap.get(nextRootValue)-1);
+        nextRoot.right = treeConstruct(preorder, inorderHashmap.get(nextRootValue)+1, rightInd);
+        
+        return nextRoot;
+    }
 }
